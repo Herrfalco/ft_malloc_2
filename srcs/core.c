@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/14 17:59:23 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/16 11:29:59 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/16 12:00:32 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,10 @@
 
 static g_zones_t		g_zones = { 0 };
 
-void	*ft_malloc(uint64_t size) {
-	if (size <= TINY_CELL_SZ && !zone_is(&g_zones.tiny, Z_FULL))
+void	*malloc(uint64_t size) {
+	if (!size)
+		return (NULL);
+	else if (size <= TINY_CELL_SZ && !zone_is(&g_zones.tiny, Z_FULL))
 		return (!zone_inited(&g_zones.tiny)
 			&& zone_init(&g_zones.tiny, TINY_CELL_SZ)
 			? NULL : zone_alloc(&g_zones.tiny, size));
@@ -26,7 +28,9 @@ void	*ft_malloc(uint64_t size) {
 	return (big_zone_alloc(&g_zones.big, size));
 }
 
-void	ft_free(void *ptr) {
+void	free(void *ptr) {
+	if (!ptr)
+		return;
 	if (zone_ptr_in(&g_zones.tiny, ptr))
 		zone_free(&g_zones.tiny, ptr);
 	else if (zone_ptr_in(&g_zones.small, ptr))

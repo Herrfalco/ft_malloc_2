@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/15 12:54:33 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/16 11:27:47 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/16 11:47:17 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,5 +30,9 @@ typedef struct		g_zones_s {
 	zone_t			small;
 	big_zone_t		big;
 }					g_zones_t;
+
+__attribute__ ((visibility ("default"))) void	*malloc(uint64_t size);
+__attribute__ ((visibility ("default"))) void	free(void *ptr);
+__attribute__ ((visibility ("default"))) void	show_alloc_mem(void);
 
 #endif // MALLOC_H

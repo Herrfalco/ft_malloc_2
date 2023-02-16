@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/14 17:59:23 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/16 12:00:32 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/16 17:20:42 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,11 @@ static g_zones_t		g_zones = { 0 };
 void	*malloc(uint64_t size) {
 	if (!size)
 		return (NULL);
-	else if (size <= TINY_CELL_SZ && !zone_is(&g_zones.tiny, Z_FULL))
+	else if (size <= TINY_CELL_SZ && !zone_full(&g_zones.tiny))
 		return (!zone_inited(&g_zones.tiny)
 			&& zone_init(&g_zones.tiny, TINY_CELL_SZ)
 			? NULL : zone_alloc(&g_zones.tiny, size));
-	else if (size <= SMALL_CELL_SZ && !zone_is(&g_zones.small, Z_FULL))
+	else if (size <= SMALL_CELL_SZ && !zone_full(&g_zones.small))
 		return (!zone_inited(&g_zones.small)
 			&& zone_init(&g_zones.small, SMALL_CELL_SZ)
 			? NULL : zone_alloc(&g_zones.small, size));
@@ -86,4 +86,12 @@ void	show_alloc_mem(void) {
 				big_zone_print(&g_zones.big);
 		}
 	}
+}
+
+void	zones_dtor(void) {
+	write(1, "destruction\n", 12);
+	if (zone_inited(&g_zones.tiny))
+		zone_dest(&g_zones.tiny);
+	if (zone_inited(&g_zones.small))
+		zone_dest(&g_zones.small);
 }

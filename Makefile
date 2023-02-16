@@ -2,7 +2,7 @@ ifeq ($(HOSTTYPE),)
 HOST	?=	$(shell uname -m)_$(shell uname -s)
 endif
 
-NAME	=	libft_malloc_$(HOST).so
+NAME	=	libft_malloc_$(HOSTTYPE).so
 SYML	=	libft_malloc.so
 SRCS	=	srcs/zone.c \
 		srcs/big_zone.c \
@@ -10,7 +10,7 @@ SRCS	=	srcs/zone.c \
 		srcs/core.c
 OBJS	=	$(SRCS:.c=.o)
 CC	=	gcc
-EFLAGS	=	-Wall -Wextra -Werror
+EFLAGS	=	-Wall -Wextra -Werror -fvisibility=hidden
 CFLAGS	=	-fpic
 LFLAGS	=	-shared
 

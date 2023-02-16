@@ -2,13 +2,11 @@
 #include <string.h>
 #include <stdlib.h>
 
-void print(char *s)
-{
+void print(char *s) {
     write(1, s, strlen(s));
 }
 
-int main()
-{
+int main() {
     char *addr;
 
     addr = malloc(16);

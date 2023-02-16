@@ -6,16 +6,17 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/15 12:54:33 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/16 11:47:17 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/16 17:15:57 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MALLOC_H
-#define MALLOC_H
+#ifndef CORE_H
+#define CORE_H
 
 #include "zone.h"
 #include "big_zone.h"
 #include "print.h"
+#include "../lib.h"
 
 #define ZONE_NB		3
 
@@ -31,8 +32,6 @@ typedef struct		g_zones_s {
 	big_zone_t		big;
 }					g_zones_t;
 
-__attribute__ ((visibility ("default"))) void	*malloc(uint64_t size);
-__attribute__ ((visibility ("default"))) void	free(void *ptr);
-__attribute__ ((visibility ("default"))) void	show_alloc_mem(void);
+void __attribute__ ((destructor))		zones_dtor(void);
 
-#endif // MALLOC_H
+#endif // CORE_H

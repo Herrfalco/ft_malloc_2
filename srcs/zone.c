@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/15 12:18:18 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/16 11:33:00 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/16 17:13:21 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ int		zone_init(zone_t *zone, uint64_t cell_cap) {
 
 void	zone_dest(zone_t *zone) {
 	munmap(zone->mem, CELL_NB * zone->cell_cap);
-	zone->mem = NULL;
 }
 
 int		zone_ptr_in(zone_t *zone, void *ptr) {
@@ -34,8 +33,8 @@ int		zone_ptr_in(zone_t *zone, void *ptr) {
 		&& ptr < zone->mem + CELL_NB * zone->cell_cap);
 }
 
-int		zone_is(zone_t *zone, zone_state_t state) {
-	return (zone->sz == state * CELL_NB);
+int		zone_full(zone_t *zone) {
+	return (zone->sz == CELL_NB);
 }
 
 void	*zone_alloc(zone_t *zone, uint64_t size) {
@@ -59,10 +58,6 @@ void	zone_free(zone_t *zone, void *ptr) {
 	idx = (ptr - zone->mem) / zone->cell_cap;
 	zone->cell_sz[idx] = 0;
 	--zone->sz;
-	if (zone_is(zone, Z_EMPTY)) {
-		munmap(zone->mem, CELL_NB * zone->cell_cap);
-		zone->mem = NULL;
-	}
 }
 
 void	*zone_start(zone_t *zone) {

@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/15 14:53:21 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/16 11:36:07 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/16 21:52:39 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,11 @@ void		*big_zone_alloc(big_zone_t *zone, uint64_t size) {
 	return (cell + 1);
 }
 
-void		big_zone_free(big_zone_t *zone, void *ptr) {
+uint64_t	big_zone_csize(void *ptr) {
+	return ((((big_cell_hdr_t *)ptr) - 1)->sz);
+}
+
+int			big_zone_free(big_zone_t *zone, void *ptr) {
 	big_cell_hdr_t		*cell = ((big_cell_hdr_t *)ptr) - 1;
 
 	if (cell->prev)
@@ -37,7 +41,7 @@ void		big_zone_free(big_zone_t *zone, void *ptr) {
 		*zone = cell->next;
 	if (cell->next)
 		cell->next->prev = cell->prev;
-	munmap(cell, cell->sz + sizeof(big_cell_hdr_t));
+	return (munmap(cell, cell->sz + sizeof(big_cell_hdr_t)));
 }
 
 static void *next_cell(big_zone_t *zone, big_cell_hdr_t *lst_cell) {
@@ -47,6 +51,15 @@ static void *next_cell(big_zone_t *zone, big_cell_hdr_t *lst_cell) {
 		if (cell > lst_cell && (!min || cell < min))
 			min = cell;
 	return (min);
+}
+
+int			big_zone_ptr_in(big_zone_t *zone, void *ptr) {
+	big_cell_hdr_t		*cell, *targ = ((big_cell_hdr_t *)ptr) - 1;
+
+	for (cell = *zone; cell; cell = cell->next)
+		if (cell == targ)
+			return (1);
+	return (0);
 }
 
 void		*big_zone_start(big_zone_t *zone) {

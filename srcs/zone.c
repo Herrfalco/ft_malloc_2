@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/15 12:18:18 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/16 17:13:21 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/16 19:58:18 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ void	zone_dest(zone_t *zone) {
 
 int		zone_ptr_in(zone_t *zone, void *ptr) {
 	return (ptr >= zone->mem
-		&& ptr < zone->mem + CELL_NB * zone->cell_cap);
+		&& ptr < zone->mem + CELL_NB * zone->cell_cap
+		&& !((ptr - zone->mem) % zone->cell_cap));
 }
 
 int		zone_full(zone_t *zone) {
@@ -50,13 +51,12 @@ void	*zone_alloc(zone_t *zone, uint64_t size) {
 	return (NULL);
 }
 
-void	zone_free(zone_t *zone, void *ptr) {
-	int		idx;
+uint64_t	zone_csize(zone_t *zone, void *ptr) {
+	return (zone->cell_sz[(ptr - zone->mem) / zone->cell_cap]);
+}
 
-	if ((ptr - zone->mem) % zone->cell_cap)
-		return;
-	idx = (ptr - zone->mem) / zone->cell_cap;
-	zone->cell_sz[idx] = 0;
+void		zone_free(zone_t *zone, void *ptr) {
+	zone->cell_sz[(ptr - zone->mem) / zone->cell_cap] = 0;
 	--zone->sz;
 }
 

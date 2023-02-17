@@ -14,7 +14,7 @@ int     main() {
     char *addr3;
 
     addr1 = (char*)malloc(16*M);
-    strcpy(addr1, "Bonjour\n");
+    strcpy(addr1, "Bonjours\n");
     print(addr1);
     addr2 = (char*)malloc(16*M);
     addr3 = (char*)realloc(addr1, 128*M);

@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/14 17:59:23 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/16 17:20:42 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/16 21:55:46 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,49 @@ void	free(void *ptr) {
 		zone_free(&g_zones.tiny, ptr);
 	else if (zone_ptr_in(&g_zones.small, ptr))
 		zone_free(&g_zones.small, ptr);
-	else
+	else if (big_zone_ptr_in(&g_zones.big, ptr))
 		big_zone_free(&g_zones.big, ptr);
+}
+
+static void		mem_cpy(void *dst, void *src, uint64_t size) {
+	uint64_t		i;
+
+	for (i = 0; i < size; ++i)
+		((uint8_t *)dst)[i] = ((uint8_t *)src)[i];
+}
+
+int			main(void) {
+	char	src[] = "bonjour";
+	char	dst[10];
+
+	mem_cpy(dst, src, 8);
+	write(1, dst, 7);
+}
+
+void	*realloc(void *ptr, uint64_t size) {
+	void		*new = NULL;
+	uint64_t	o_sz;
+
+	if (!ptr && !size);
+	else if (!ptr)
+		new = malloc(size);
+	else if (!size)
+		free(ptr);
+	else {
+		if (zone_ptr_in(&g_zones.tiny, ptr))
+			o_sz = zone_csize(&g_zones.tiny, ptr);
+		else if (zone_ptr_in(&g_zones.small, ptr))
+			o_sz = zone_csize(&g_zones.small, ptr);
+		else if (big_zone_ptr_in(&g_zones.big, ptr))
+			o_sz = big_zone_csize(ptr);
+		else
+			return (new);
+		if (!(new = malloc(size)))
+			return (new);
+		mem_cpy(new, ptr, o_sz < size ? o_sz : size);
+		free(ptr);
+	}
+	return (new);
 }
 
 static void		sort_zones(zone_typ_t *zones, void **starts) {
@@ -89,7 +130,6 @@ void	show_alloc_mem(void) {
 }
 
 void	zones_dtor(void) {
-	write(1, "destruction\n", 12);
 	if (zone_inited(&g_zones.tiny))
 		zone_dest(&g_zones.tiny);
 	if (zone_inited(&g_zones.small))

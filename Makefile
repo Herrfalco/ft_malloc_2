@@ -1,5 +1,5 @@
 ifeq ($(HOSTTYPE),)
-HOST	?=	$(shell uname -m)_$(shell uname -s)
+HOSTTYPE ?=	$(shell uname -m)_$(shell uname -s)
 endif
 
 NAME	=	libft_malloc_$(HOSTTYPE).so

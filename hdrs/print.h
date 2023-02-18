@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/16 10:39:16 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/18 19:04:14 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 19:35:32 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,6 @@ typedef enum		base_e {
 
 void			print_str(int fd, const char *str);
 void			print_ln(int fd);
-void			print_nb_base(int fd, uint64_t nb, base_t base);
+void			print_nb_base(int fd, uint64_t nb, base_t base, uint64_t min_w);
 
 #endif // PRINT_H

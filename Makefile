@@ -7,7 +7,9 @@ SYML	=	libft_malloc.so
 SRCS	=	srcs/zone.c \
 		srcs/big_zone.c \
 		srcs/print.c \
-		srcs/core.c
+		srcs/core.c \
+		srcs/glob.c \
+		srcs/show.c
 OBJS	=	$(SRCS:.c=.o)
 CC	=	gcc
 EFLAGS	=	-Wall -Wextra -Werror -fvisibility=hidden

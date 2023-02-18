@@ -6,14 +6,14 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/16 10:39:16 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/16 11:25:43 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 12:17:28 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PRINT_H
 #define PRINT_H
 
-#include "../hdrs/incs.h"
+#include "incs.h"
 
 #define BUFF_SZ		1024
 

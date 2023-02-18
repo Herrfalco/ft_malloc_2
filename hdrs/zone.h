@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/15 12:26:57 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/16 19:53:15 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 12:12:49 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ typedef struct		zone_s {
 }					zone_t;
 
 int			zone_inited(zone_t *zone);
-int			zone_init(zone_t *zone, uint64_t cell_cap);
+void		zone_init(zone_t *zone, uint64_t cell_cap);
 int			zone_ptr_in(zone_t *zone, void *ptr);
 int			zone_full(zone_t *zone);
 void		*zone_alloc(zone_t *zone, uint64_t size);

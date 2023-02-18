@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/15 12:18:18 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/18 11:11:30 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 12:27:14 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,22 +16,30 @@ int		zone_inited(zone_t *zone) {
 	return (!!zone->mem);
 }
 
-int		zone_init(zone_t *zone, uint64_t cell_cap) {
+void	zone_init(zone_t *zone, uint64_t cell_cap) {
+	if (zone_inited(zone))
+		return;
 	zone->cell_cap = cell_cap;
-	return (!(zone->mem = mmap(NULL, CELL_NB * cell_cap,
-		PROT_READ | PROT_WRITE | PROT_EXEC,
-		MAP_PRIVATE | MAP_ANONYMOUS,
-		-1, 0)) ? -1 : 0);
+	zone->mem = mmap(NULL, CELL_NB * cell_cap,
+			PROT_READ | PROT_WRITE | PROT_EXEC,
+			MAP_PRIVATE | MAP_ANONYMOUS,
+			-1, 0);
 }
 
 void	zone_dest(zone_t *zone) {
-	munmap(zone->mem, CELL_NB * zone->cell_cap);
+	if (zone_inited(zone))
+		munmap(zone->mem, CELL_NB * zone->cell_cap);
+}
+
+uint64_t	zone_csize(zone_t *zone, void *ptr) {
+	return (zone->cell_sz[(ptr - zone->mem) / zone->cell_cap]);
 }
 
 int		zone_ptr_in(zone_t *zone, void *ptr) {
 	return (ptr >= zone->mem
 		&& ptr < zone->mem + CELL_NB * zone->cell_cap
-		&& !((ptr - zone->mem) % zone->cell_cap));
+		&& !((ptr - zone->mem) % zone->cell_cap)
+		&& zone_csize(zone, ptr));
 }
 
 int		zone_full(zone_t *zone) {
@@ -49,10 +57,6 @@ void	*zone_alloc(zone_t *zone, uint64_t size) {
 		}
 	}
 	return (NULL);
-}
-
-uint64_t	zone_csize(zone_t *zone, void *ptr) {
-	return (zone->cell_sz[(ptr - zone->mem) / zone->cell_cap]);
 }
 
 void		zone_free(zone_t *zone, void *ptr) {

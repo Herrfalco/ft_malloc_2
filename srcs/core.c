@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/14 17:59:23 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/18 11:14:54 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 13:04:00 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,13 @@ static g_zones_t		g_zones = { 0 };
 void	*malloc(uint64_t size) {
 	if (!size)
 		return (NULL);
-	else if (size <= TINY_CELL_SZ
+	zone_init(&g_zones.tiny, TINY_CELL_SZ);
+	zone_init(&g_zones.small, SMALL_CELL_SZ);
+	if (size <= TINY_CELL_SZ
 			&& zone_inited(&g_zones.tiny)
 			&& !zone_full(&g_zones.tiny))
 		return (zone_alloc(&g_zones.tiny, size));
-	else if (size <= SMALL_CELL_SZ
+	if (size <= SMALL_CELL_SZ
 			&& zone_inited(&g_zones.small)
 			&& !zone_full(&g_zones.small))
 		return (zone_alloc(&g_zones.small, size));
@@ -46,14 +48,6 @@ static void		mem_cpy(void *dst, void *src, uint64_t size) {
 		((uint8_t *)dst)[i] = ((uint8_t *)src)[i];
 }
 
-int			main(void) {
-	char	src[] = "bonjour";
-	char	dst[10];
-
-	mem_cpy(dst, src, 8);
-	write(1, dst, 7);
-}
-
 void	*realloc(void *ptr, uint64_t size) {
 	void		*new = NULL;
 	uint64_t	o_sz;
@@ -71,9 +65,9 @@ void	*realloc(void *ptr, uint64_t size) {
 		else if (big_zone_ptr_in(&g_zones.big, ptr))
 			o_sz = big_zone_csize(ptr);
 		else
-			return (new);
+			return (NULL);
 		if (!(new = malloc(size)))
-			return (new);
+			return (NULL);
 		mem_cpy(new, ptr, o_sz < size ? o_sz : size);
 		free(ptr);
 	}
@@ -129,14 +123,7 @@ void	show_alloc_mem(void) {
 	}
 }
 
-void	zones_ctor(void) {
-	zone_init(&g_zones.tiny, TINY_CELL_SZ);
-	zone_init(&g_zones.small, SMALL_CELL_SZ);
-}
-
 void	zones_dtor(void) {
-	if (zone_inited(&g_zones.tiny))
-		zone_dest(&g_zones.tiny);
-	if (zone_inited(&g_zones.small))
-		zone_dest(&g_zones.small);
+	zone_dest(&g_zones.tiny);
+	zone_dest(&g_zones.small);
 }

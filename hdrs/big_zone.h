@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/15 13:13:00 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/16 21:52:53 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 12:17:05 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ typedef struct __attribute__((packed))	big_cell_hdr_s {
 	uint8_t								_pad[8];
 }										big_cell_hdr_t;
 
-typedef big_cell_hdr_t		*big_zone_t;
+typedef big_cell_hdr_t					*big_zone_t;
 
 void		*big_zone_alloc(big_zone_t *zone, uint64_t size);
 uint64_t	big_zone_csize(void *ptr);

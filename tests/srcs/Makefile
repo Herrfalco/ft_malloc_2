@@ -4,7 +4,8 @@ NOLIB		=	test0 \
 			test3 \
 			test4 \
 			test5
-WLIB		=	test6
+WLIB		=	test6 \
+			test7
 OBJS		=	$(NOLIB:=.o) $(WLIB:=.o)
 CC		=	gcc
 FLAGS		=	-Werror -Wall -Wextra

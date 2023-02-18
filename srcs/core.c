@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/14 17:59:23 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/18 18:02:11 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 19:05:51 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,21 +20,21 @@ static void		glob_lock(fn_typ_t fn, void *dat1, void *dat2) {
 	pthread_mutex_lock(&g_zones.mut);
 	if (!g_zones.log)
 		g_zones.log = open(getenv(ENV_FLAG),
-			O_WRONLY | O_CREAT | O_TRUNC, 0666);
+			O_RDWR | O_CREAT | O_TRUNC, 0666);
 	if (g_zones.log > 0) {
 		switch (fn) {
 			case FT_MLC:
-				print_str(g_zones.log, "malloc(");
+				print_str(g_zones.log, "  malloc(");
 				print_nb_base(g_zones.log, *((uint64_t *)dat1), DEC);
 				print_str(g_zones.log, ") = ");
 				break;
 			case FT_FRE:
-				print_str(g_zones.log, "free(");
+				print_str(g_zones.log, "  free(");
 				print_nb_base(g_zones.log, (uint64_t)dat1, HEX);
 				print_str(g_zones.log, ")\n");
 				break;
 			case FT_RLC:
-				print_str(g_zones.log, "realloc(");
+				print_str(g_zones.log, "  realloc(");
 				print_nb_base(g_zones.log, (uint64_t)dat1, HEX);
 				print_str(g_zones.log, ", ");
 				print_nb_base(g_zones.log, *((uint64_t *)dat2), DEC);
@@ -159,6 +159,7 @@ void	show_alloc_mem(void) {
 
 
 	glob_lock(FT_SHW, NULL, NULL);
+	print_str(1, LINE_STR);
 	starts[0] = zone_start(&g_zones.tiny);
 	starts[1] = zone_start(&g_zones.small);
 	starts[2] = big_zone_start(&g_zones.big);
@@ -189,7 +190,32 @@ void	show_alloc_mem(void) {
 	glob_unlock(FT_SHW, NULL);
 }
 
+void	show_alloc_hist(void) {
+	char		buff[BUFF_SZ];
+	ssize_t		ret;
+
+	glob_lock(FT_HST, NULL, NULL);
+	print_str(1, LINE_STR);
+	if (g_zones.log > 0) {
+		print_str(1, "HIST:\n");
+		if (lseek(g_zones.log, 0, SEEK_SET) < 0)
+			print_str(2, "Error: Can't acces history file\n");
+		else {
+			while ((ret = read(g_zones.log, buff, BUFF_SZ)) > 0)
+				write(1, buff, ret);
+			if (ret < 0)
+				print_str(2, "Error: Can't read history file\n");
+			if (lseek(g_zones.log, 0, SEEK_END) < 0)
+				print_str(2, "Error: Can't acces history file\n");
+		}
+	} else
+		print_str(2, "Error: No log file (please export LOG_FILE variable)\n");
+	glob_unlock(FT_HST, NULL);
+}
+
 void	zones_dtor(void) {
 	zone_dest(&g_zones.tiny);
 	zone_dest(&g_zones.small);
+	if (g_zones.log > 0)
+		close(g_zones.log);
 }

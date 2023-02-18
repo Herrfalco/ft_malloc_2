@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/15 14:53:21 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/16 21:52:39 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 17:13:31 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,12 +70,12 @@ void		big_zone_print(big_zone_t *zone) {
 	big_cell_hdr_t		*cell = NULL;
 
 	while ((cell = next_cell(zone, cell))) {
-			print_str("  ");
-			print_nb_base((uint64_t)(cell + 1), HEX);
-			print_str(" - ");
-			print_nb_base((uint64_t)(cell + 1) + cell->sz, HEX);
-			print_str(" : ");
-			print_nb_base(cell->sz, DEC);
-			print_str(" bytes\n");
+			print_str(1, "  ");
+			print_nb_base(1, (uint64_t)(cell + 1), HEX);
+			print_str(1, " - ");
+			print_nb_base(1, (uint64_t)(cell + 1) + cell->sz, HEX);
+			print_str(1, " : ");
+			print_nb_base(1, cell->sz, DEC);
+			print_str(1, " bytes\n");
 	}
 }

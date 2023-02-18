@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/16 10:39:16 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/18 12:17:28 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 17:12:58 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,8 @@ typedef enum		base_e {
 	HEX,
 }					base_t;
 
-void			print_str(const char *str);
-void			print_ln(void);
-void			print_nb_base(uint64_t nb, base_t base);
+void			print_str(int fd, const char *str);
+void			print_ln(int fd);
+void			print_nb_base(int fd, uint64_t nb, base_t base);
 
 #endif // PRINT_H

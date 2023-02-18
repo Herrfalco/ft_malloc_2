@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/14 17:59:23 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/18 14:21:19 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 18:02:11 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,59 +16,93 @@ static g_zones_t		g_zones = {
 	.mut = PTHREAD_MUTEX_INITIALIZER,
 };
 
-static void		*glob_mut_wrapper(mut_op_t mut_op, void *ret) {
-	switch (mut_op) {
-		case MO_LOCK:
-			pthread_mutex_lock(&g_zones.mut);
-			break;
-		case MO_UNLOCK:
-			pthread_mutex_unlock(&g_zones.mut);
-			break;
-		default:
-			;
+static void		glob_lock(fn_typ_t fn, void *dat1, void *dat2) {
+	pthread_mutex_lock(&g_zones.mut);
+	if (!g_zones.log)
+		g_zones.log = open(getenv(ENV_FLAG),
+			O_WRONLY | O_CREAT | O_TRUNC, 0666);
+	if (g_zones.log > 0) {
+		switch (fn) {
+			case FT_MLC:
+				print_str(g_zones.log, "malloc(");
+				print_nb_base(g_zones.log, *((uint64_t *)dat1), DEC);
+				print_str(g_zones.log, ") = ");
+				break;
+			case FT_FRE:
+				print_str(g_zones.log, "free(");
+				print_nb_base(g_zones.log, (uint64_t)dat1, HEX);
+				print_str(g_zones.log, ")\n");
+				break;
+			case FT_RLC:
+				print_str(g_zones.log, "realloc(");
+				print_nb_base(g_zones.log, (uint64_t)dat1, HEX);
+				print_str(g_zones.log, ", ");
+				print_nb_base(g_zones.log, *((uint64_t *)dat2), DEC);
+				print_str(g_zones.log, ") = ");
+				break;
+			default:
+				break;
+		}
 	}
-	return (ret);
 }
 
-static void		*malloc_lock(uint64_t size, bool_t lock) {
+static void		*glob_unlock(fn_typ_t fn, void *dat) {
+	if (g_zones.log > 0) {
+		switch (fn) {
+			case FT_MLC:
+				print_nb_base(g_zones.log, (uint64_t)dat, HEX);
+				print_ln(g_zones.log);
+				break;
+			case FT_FRE:
+				break;
+			case FT_RLC:
+				print_nb_base(g_zones.log, (uint64_t)dat, HEX);
+				print_ln(g_zones.log);
+				break;
+			default:
+				break;
+		}
+	}
+	pthread_mutex_unlock(&g_zones.mut);
+	return (dat);
+}
+
+static void		*malloc_no_lock(uint64_t size) {
 	if (!size)
 		return (NULL);
-	glob_mut_wrapper(lock * MO_LOCK, NULL);
 	zone_init(&g_zones.tiny, TINY_CELL_SZ);
 	zone_init(&g_zones.small, SMALL_CELL_SZ);
 	if (size <= TINY_CELL_SZ
 			&& zone_inited(&g_zones.tiny)
 			&& !zone_full(&g_zones.tiny))
-		return (glob_mut_wrapper(lock * MO_UNLOCK,
-			zone_alloc(&g_zones.tiny, size)));
+		return (zone_alloc(&g_zones.tiny, size));
 	if (size <= SMALL_CELL_SZ
 			&& zone_inited(&g_zones.small)
 			&& !zone_full(&g_zones.small))
-		return (glob_mut_wrapper(lock * MO_UNLOCK,
-			zone_alloc(&g_zones.small, size)));
-	return (glob_mut_wrapper(lock * MO_UNLOCK,
-			big_zone_alloc(&g_zones.big, size)));
+		return (zone_alloc(&g_zones.small, size));
+	return (big_zone_alloc(&g_zones.big, size));
 }
 
 void	*malloc(uint64_t size) {
-	return (malloc_lock(size, TRUE));
+	glob_lock(FT_MLC, &size, NULL);
+	return (glob_unlock(FT_MLC, malloc_no_lock(size)));
 }
 
-static void		free_lock(void *ptr, bool_t lock) {
+static void		free_no_lock(void *ptr) {
 	if (!ptr)
 		return;
-	glob_mut_wrapper(lock * MO_LOCK, NULL);
 	if (zone_ptr_in(&g_zones.tiny, ptr))
 		zone_free(&g_zones.tiny, ptr);
 	else if (zone_ptr_in(&g_zones.small, ptr))
 		zone_free(&g_zones.small, ptr);
 	else if (big_zone_ptr_in(&g_zones.big, ptr))
 		big_zone_free(&g_zones.big, ptr);
-	glob_mut_wrapper(lock * MO_UNLOCK, NULL);
 }
 
 void	free(void *ptr) {
-	free_lock(ptr, TRUE);
+	glob_lock(FT_FRE, ptr, NULL);
+	free_no_lock(ptr);
+	glob_unlock(FT_FRE, NULL);
 }
 
 static void		mem_cpy(void *dst, void *src, uint64_t size) {
@@ -82,15 +116,13 @@ void	*realloc(void *ptr, uint64_t size) {
 	void		*new = NULL;
 	uint64_t	o_sz;
 
-	if (!ptr && !size)
-		return (NULL);
-	else if (!ptr)
-		return (malloc(size));
-	else if (!size) {
-		free(ptr);
-		return (NULL);
-	}
-	glob_mut_wrapper(MO_LOCK, NULL);
+	glob_lock(FT_RLC, ptr, &size);
+	if (!size) {
+		if (ptr)
+			free_no_lock(ptr);
+		return (glob_unlock(FT_RLC, NULL));
+	} else if (!ptr)
+		return (glob_unlock(FT_RLC, malloc_no_lock(size)));
 	if (zone_ptr_in(&g_zones.tiny, ptr))
 		o_sz = zone_csize(&g_zones.tiny, ptr);
 	else if (zone_ptr_in(&g_zones.small, ptr))
@@ -98,12 +130,12 @@ void	*realloc(void *ptr, uint64_t size) {
 	else if (big_zone_ptr_in(&g_zones.big, ptr))
 		o_sz = big_zone_csize(ptr);
 	else
-		return (glob_mut_wrapper(MO_UNLOCK, NULL));
-	if (!(new = malloc_lock(size, FALSE)))
-		return (glob_mut_wrapper(MO_UNLOCK, NULL));
+		return (glob_unlock(FT_RLC, NULL));
+	if (!(new = malloc_no_lock(size)))
+		return (glob_unlock(FT_RLC, NULL));
 	mem_cpy(new, ptr, o_sz < size ? o_sz : size);
-	free_lock(ptr, FALSE);
-	return (glob_mut_wrapper(MO_UNLOCK, new));
+	free_no_lock(ptr);
+	return (glob_unlock(FT_RLC, new));
 }
 
 static void		sort_zones(zone_typ_t *zones, void **starts) {
@@ -126,7 +158,7 @@ void	show_alloc_mem(void) {
 	void			*starts[ZONE_NB];
 
 
-	glob_mut_wrapper(MO_LOCK, NULL);
+	glob_lock(FT_SHW, NULL, NULL);
 	starts[0] = zone_start(&g_zones.tiny);
 	starts[1] = zone_start(&g_zones.small);
 	starts[2] = big_zone_start(&g_zones.big);
@@ -136,25 +168,25 @@ void	show_alloc_mem(void) {
 			continue;
 		switch (zones[i]) {
 			case ZT_TINY:
-				print_str("TINY : ");
-				print_nb_base((uint64_t)starts[ZT_TINY], HEX);
-				print_ln();
+				print_str(1, "TINY : ");
+				print_nb_base(1, (uint64_t)starts[ZT_TINY], HEX);
+				print_ln(1);
 				zone_print(&g_zones.tiny);
 				break;
 			case ZT_SMALL:
-				print_str("SMALL : ");
-				print_nb_base((uint64_t)starts[ZT_SMALL], HEX);
-				print_ln();
+				print_str(1, "SMALL : ");
+				print_nb_base(1, (uint64_t)starts[ZT_SMALL], HEX);
+				print_ln(1);
 				zone_print(&g_zones.small);
 				break;
 			default:
-				print_str("BIG : ");
-				print_nb_base((uint64_t)starts[ZT_BIG], HEX);
-				print_ln();
+				print_str(1, "BIG : ");
+				print_nb_base(1, (uint64_t)starts[ZT_BIG], HEX);
+				print_ln(1);
 				big_zone_print(&g_zones.big);
 		}
 	}
-	glob_mut_wrapper(MO_UNLOCK, NULL);
+	glob_unlock(FT_SHW, NULL);
 }
 
 void	zones_dtor(void) {

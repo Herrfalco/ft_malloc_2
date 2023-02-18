@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/15 12:18:18 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/18 19:49:11 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 21:23:07 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,11 +76,11 @@ void	zone_print(zone_t *zone) {
 		if (zone->cell_sz[idx]) {
 			start = zone->mem + idx * zone->cell_cap;
 			print_str(1, "  ");
-			print_nb_base(1, (uint64_t)start, HEX, 0);
+			print_nb_base(1, (uint64_t)start, B_HEX, 0);
 			print_str(1, " - ");
-			print_nb_base(1, (uint64_t)(start + zone->cell_sz[idx]), HEX, 0);
+			print_nb_base(1, (uint64_t)(start + zone->cell_sz[idx]), B_HEX, 0);
 			print_str(1, " : ");
-			print_nb_base(1, zone->cell_sz[idx], DEC, 0);
+			print_nb_base(1, zone->cell_sz[idx], B_DEC, 0);
 			print_str(1, " bytes\n");
 		}
 	}

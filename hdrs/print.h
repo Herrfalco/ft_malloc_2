@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/16 10:39:16 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/18 19:35:32 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 21:22:01 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,11 @@
 #define LINE_STR	"-----------------------------------------------------\n"
 
 typedef enum		base_e {
-	BIN,
-	OCT,
-	DEC,
-	HEX,
+	B_BIN,
+	B_OCT,
+	B_DEC,
+	B_HEX,
+	B_DMP,
 }					base_t;
 
 void			print_str(int fd, const char *str);

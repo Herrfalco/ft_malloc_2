@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/18 19:17:02 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/18 19:23:44 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 21:12:42 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ typedef enum		fn_typ_e {
 	FT_RLC,
 	FT_SHW,
 	FT_HST,
+	FT_DMP,
 }					fn_typ_t;
 
 typedef struct		g_zones_s {

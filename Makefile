@@ -13,6 +13,7 @@ CC	=	gcc
 EFLAGS	=	-Wall -Wextra -Werror -fvisibility=hidden
 CFLAGS	=	-fpic
 LFLAGS	=	-shared
+LIBS	=	-lpthread
 
 all	:	$(NAME)
 

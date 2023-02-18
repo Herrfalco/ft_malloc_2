@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/15 12:54:33 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/16 17:15:57 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 11:16:15 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ typedef struct		g_zones_s {
 	big_zone_t		big;
 }					g_zones_t;
 
+void __attribute__ ((constructor))		zones_ctor(void);
 void __attribute__ ((destructor))		zones_dtor(void);
 
 #endif // CORE_H

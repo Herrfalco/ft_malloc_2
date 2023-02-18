@@ -1,20 +1,22 @@
-NAMES		=	test0 \
+NOLIB		=	test0 \
 			test1 \
 			test2 \
 			test3 \
 			test4 \
-			test5 \
-			test6
-SRCS		=	$(NAMES:=.c)
-OBJS		=	$(NAMES:=.o)
+			test5
+WLIB		=	test6
+OBJS		=	$(NOLIB:=.o) $(WLIB:=.o)
 CC		=	gcc
-FLAGS		=	-Wall -Wall -Wextra
+FLAGS		=	-Werror -Wall -Wextra
 LIBS		=	-L./../.. -lft_malloc
 IGNS		=	-Wno-free-nonheap-object -Wno-unused-result
 
-all		:	$(NAMES)
+all		:	$(NOLIB) $(WLIB)
 
-$(NAMES)	:	% : %.o
+$(NOLIB)	:	% : %.o
+			$(CC) $(CFLAGS) $< -o $@
+
+$(WLIB)		:	% : %.o
 			$(CC) $(CFLAGS) $< -o $@ $(LIBS)
 
 %.o		:	%.c
@@ -24,6 +26,6 @@ clean		:
 			$(RM) $(OBJS)
 
 fclean		:	clean
-			rm -rf $(NAMES)
+			rm -rf $(NOLIB) $(WLIB)
 
 re		:	fclean all

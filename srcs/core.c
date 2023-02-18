@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/14 17:59:23 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/16 21:55:46 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/18 11:14:54 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,14 @@ static g_zones_t		g_zones = { 0 };
 void	*malloc(uint64_t size) {
 	if (!size)
 		return (NULL);
-	else if (size <= TINY_CELL_SZ && !zone_full(&g_zones.tiny))
-		return (!zone_inited(&g_zones.tiny)
-			&& zone_init(&g_zones.tiny, TINY_CELL_SZ)
-			? NULL : zone_alloc(&g_zones.tiny, size));
-	else if (size <= SMALL_CELL_SZ && !zone_full(&g_zones.small))
-		return (!zone_inited(&g_zones.small)
-			&& zone_init(&g_zones.small, SMALL_CELL_SZ)
-			? NULL : zone_alloc(&g_zones.small, size));
+	else if (size <= TINY_CELL_SZ
+			&& zone_inited(&g_zones.tiny)
+			&& !zone_full(&g_zones.tiny))
+		return (zone_alloc(&g_zones.tiny, size));
+	else if (size <= SMALL_CELL_SZ
+			&& zone_inited(&g_zones.small)
+			&& !zone_full(&g_zones.small))
+		return (zone_alloc(&g_zones.small, size));
 	return (big_zone_alloc(&g_zones.big, size));
 }
 
@@ -127,6 +127,11 @@ void	show_alloc_mem(void) {
 				big_zone_print(&g_zones.big);
 		}
 	}
+}
+
+void	zones_ctor(void) {
+	zone_init(&g_zones.tiny, TINY_CELL_SZ);
+	zone_init(&g_zones.small, SMALL_CELL_SZ);
 }
 
 void	zones_dtor(void) {

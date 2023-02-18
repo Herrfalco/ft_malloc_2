@@ -5,7 +5,7 @@ make -C rusage
 cp rusage/rusage correction
 make fclean -C rusage
 
-cp script/ld_env.sh correction
+cp script/run.sh correction
 
 make -C srcs
 cp srcs/test* correction

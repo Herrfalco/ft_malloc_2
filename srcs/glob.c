@@ -6,7 +6,7 @@
 /*   By: fcadet <fcadet@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/18 19:16:18 by fcadet            #+#    #+#             */
-/*   Updated: 2023/02/18 21:22:47 by fcadet           ###   ########.fr       */
+/*   Updated: 2023/02/20 10:33:17 by fcadet           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,6 @@ void			*glob_unlock(fn_typ_t fn, void *dat) {
 			case FT_MLC:
 				print_nb_base(g_zones.log, (uint64_t)dat, B_HEX, 0);
 				print_ln(g_zones.log);
-				break;
-			case FT_FRE:
 				break;
 			case FT_RLC:
 				print_nb_base(g_zones.log, (uint64_t)dat, B_HEX, 0);
